@@ -1,6 +1,7 @@
 @page "/deleteproduct/{Id:int}"
 @using TP4___TRANI.Models
 @using TP4___TRANI.Services
+@using System.Net
 @inject ProductService ProductService
 @inject NavigationManager Navigation
 
@@ -12,6 +13,8 @@
 }
 else
 {
+    <p style="color:green; font-weight:bold;">Respuesta de la API: @codigoRespuesta</p>
+
     <div>
         <p>¿Estás seguro que querés eliminar este producto?</p>
 
@@ -31,9 +34,9 @@ else
             Cancelar
         </button>
 
-        @if (mensaje != null)
+        @if (codigoEliminacion != null)
         {
-            <p style="color:green;">@mensaje</p>
+            <p style="color:green; font-weight:bold;">Respuesta eliminación: @codigoEliminacion</p>
         }
     </div>
 }
@@ -43,22 +46,22 @@ else
     public int Id { get; set; }
 
     private Product? product;
-    private string? mensaje;
+    private string codigoRespuesta = "";
+    private string? codigoEliminacion;
 
     protected override async Task OnInitializedAsync()
     {
-        product = await ProductService.GetProductByIdAsync(Id);
+        var (producto, codigo) = await ProductService.GetProductByIdAsync(Id);
+        product = producto;
+        codigoRespuesta = $"{(int)codigo} {codigo}";
     }
 
     private async Task Eliminar()
     {
-        var resultado = await ProductService.DeleteProductAsync(Id);
-        if (resultado)
-        {
-            mensaje = "Producto eliminado correctamente";
-            await Task.Delay(1500);
-            Navigation.NavigateTo("/products");
-        }
+        var (exito, codigo) = await ProductService.DeleteProductAsync(Id);
+        codigoEliminacion = $"{(int)codigo} {codigo}";
+        await Task.Delay(2000);
+        Navigation.NavigateTo("/products");
     }
 
     private void Volver()

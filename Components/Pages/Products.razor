@@ -1,17 +1,20 @@
 @page "/products"
 @using TP4___TRANI.Models
 @using TP4___TRANI.Services
+@using System.Net
 @inject ProductService ProductService
 @inject NavigationManager Navigation
 
 <h3>Productos</h3>
 
-@if (products == null)
+@if (cargando)
 {
     <p>Cargando productos...</p>
 }
 else
 {
+    <p style="color:green; font-weight:bold;">Respuesta de la API: @codigoRespuesta</p>
+
     <button @onclick="NuevoProducto" style="margin-bottom:10px;">
         + Nuevo Producto
     </button>
@@ -27,7 +30,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var product in products)
+            @foreach (var product in products!)
             {
                 <tr>
                     <td>@product.Id</td>
@@ -46,10 +49,15 @@ else
 
 @code {
     private List<Product>? products;
+    private bool cargando = true;
+    private string codigoRespuesta = "";
 
     protected override async Task OnInitializedAsync()
     {
-        products = await ProductService.GetProductsAsync();
+        var (productos, codigo) = await ProductService.GetProductsAsync();
+        products = productos;
+        codigoRespuesta = $"{(int)codigo} {codigo}";
+        cargando = false;
     }
 
     private void NuevoProducto()

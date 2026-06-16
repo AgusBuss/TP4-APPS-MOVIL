@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Net;
 using TP4___TRANI.Models;
 
 namespace TP4___TRANI.Services
@@ -14,37 +15,42 @@ namespace TP4___TRANI.Services
         }
 
         // GET - Obtener todos los productos
-        public async Task<List<Product>> GetProductsAsync()
+        public async Task<(List<Product>? productos, HttpStatusCode codigo)> GetProductsAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<Product>>(BaseUrl)
-                   ?? new List<Product>();
+            var response = await _httpClient.GetAsync(BaseUrl);
+            var productos = await response.Content.ReadFromJsonAsync<List<Product>>();
+            return (productos, response.StatusCode);
         }
 
         // GET - Obtener un producto por ID
-        public async Task<Product?> GetProductByIdAsync(int id)
+        public async Task<(Product? producto, HttpStatusCode codigo)> GetProductByIdAsync(int id)
         {
-            return await _httpClient.GetFromJsonAsync<Product>($"{BaseUrl}/{id}");
+            var response = await _httpClient.GetAsync($"{BaseUrl}/{id}");
+            var producto = await response.Content.ReadFromJsonAsync<Product>();
+            return (producto, response.StatusCode);
         }
 
         // POST - Crear un producto
-        public async Task<Product?> CreateProductAsync(Product product)
+        public async Task<(Product? producto, HttpStatusCode codigo)> CreateProductAsync(Product product)
         {
             var response = await _httpClient.PostAsJsonAsync(BaseUrl, product);
-            return await response.Content.ReadFromJsonAsync<Product>();
+            var producto = await response.Content.ReadFromJsonAsync<Product>();
+            return (producto, response.StatusCode);
         }
 
         // PUT - Actualizar un producto
-        public async Task<Product?> UpdateProductAsync(int id, Product product)
+        public async Task<(Product? producto, HttpStatusCode codigo)> UpdateProductAsync(int id, Product product)
         {
             var response = await _httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", product);
-            return await response.Content.ReadFromJsonAsync<Product>();
+            var producto = await response.Content.ReadFromJsonAsync<Product>();
+            return (producto, response.StatusCode);
         }
 
         // DELETE - Eliminar un producto
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<(bool exito, HttpStatusCode codigo)> DeleteProductAsync(int id)
         {
             var response = await _httpClient.DeleteAsync($"{BaseUrl}/{id}");
-            return response.IsSuccessStatusCode;
+            return (response.IsSuccessStatusCode, response.StatusCode);
         }
     }
 }

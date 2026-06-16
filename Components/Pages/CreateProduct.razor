@@ -1,6 +1,7 @@
 @page "/createproduct"
 @using TP4___TRANI.Models
 @using TP4___TRANI.Services
+@using System.Net
 @inject ProductService ProductService
 @inject NavigationManager Navigation
 
@@ -25,25 +26,25 @@
     <button @onclick="Crear">Guardar</button>
     <button @onclick="Volver" style="margin-left:10px;">Cancelar</button>
 
-    @if (mensaje != null)
+    @if (codigoRespuesta != null)
     {
-        <p style="color:green;">@mensaje</p>
+        <p style="color:green; font-weight:bold;">Respuesta de la API: @codigoRespuesta</p>
+        <p style="color:green;">Producto creado con ID: @productoCreado?.Id</p>
     }
 </div>
 
 @code {
     private Product product = new Product();
-    private string? mensaje;
+    private string? codigoRespuesta;
+    private Product? productoCreado;
 
     private async Task Crear()
     {
-        var resultado = await ProductService.CreateProductAsync(product);
-        if (resultado != null)
-        {
-            mensaje = $"Producto creado con ID: {resultado.Id}";
-            await Task.Delay(1500);
-            Navigation.NavigateTo("/products");
-        }
+        var (resultado, codigo) = await ProductService.CreateProductAsync(product);
+        codigoRespuesta = $"{(int)codigo} {codigo}";
+        productoCreado = resultado;
+        await Task.Delay(2000);
+        Navigation.NavigateTo("/products");
     }
 
     private void Volver()

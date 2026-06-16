@@ -1,6 +1,7 @@
 @page "/editproduct/{Id:int}"
 @using TP4___TRANI.Models
 @using TP4___TRANI.Services
+@using System.Net
 @inject ProductService ProductService
 @inject NavigationManager Navigation
 
@@ -12,6 +13,8 @@
 }
 else
 {
+    <p style="color:green; font-weight:bold;">Respuesta de la API: @codigoRespuesta</p>
+
     <div>
         <label>Título</label><br />
         <input @bind="product.Title" style="width:300px;" /><br /><br />
@@ -31,9 +34,9 @@ else
         <button @onclick="Actualizar">Guardar cambios</button>
         <button @onclick="Volver" style="margin-left:10px;">Cancelar</button>
 
-        @if (mensaje != null)
+        @if (codigoActualizacion != null)
         {
-            <p style="color:green;">@mensaje</p>
+            <p style="color:green; font-weight:bold;">Respuesta actualización: @codigoActualizacion</p>
         }
     </div>
 }
@@ -43,24 +46,24 @@ else
     public int Id { get; set; }
 
     private Product? product;
-    private string? mensaje;
+    private string codigoRespuesta = "";
+    private string? codigoActualizacion;
 
     protected override async Task OnInitializedAsync()
     {
-        product = await ProductService.GetProductByIdAsync(Id);
+        var (producto, codigo) = await ProductService.GetProductByIdAsync(Id);
+        product = producto;
+        codigoRespuesta = $"{(int)codigo} {codigo}";
     }
 
     private async Task Actualizar()
     {
         if (product != null)
         {
-            var resultado = await ProductService.UpdateProductAsync(Id, product);
-            if (resultado != null)
-            {
-                mensaje = "Producto actualizado correctamente";
-                await Task.Delay(1500);
-                Navigation.NavigateTo("/products");
-            }
+            var (resultado, codigo) = await ProductService.UpdateProductAsync(Id, product);
+            codigoActualizacion = $"{(int)codigo} {codigo}";
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/products");
         }
     }
 
